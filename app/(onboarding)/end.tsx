@@ -14,7 +14,7 @@ export default function Page() {
       
       <TouchableOpacity 
         style={styles.button}
-        onPress={() => router.push("/(auth)")}
+        onPress={() => router.push("/(onboarding)/permissions")}
       >
         <Text style={styles.buttonText}>Continue</Text>
       </TouchableOpacity>
