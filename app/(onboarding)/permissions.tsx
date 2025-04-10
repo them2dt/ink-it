@@ -5,6 +5,7 @@ import { typography } from '@/constants/typography';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useCallback } from 'react';
 import * as ImagePicker from 'expo-image-picker';
+import { AuthChangeEvent } from '@supabase/supabase-js';
 
 export default function Page() {
   const [cameraPermission, setCameraPermission] = useState(false);
