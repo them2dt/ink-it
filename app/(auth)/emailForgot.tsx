@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, TextInput } fro
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { colors } from '@/constants/colors';
+import { typography } from '@/constants/typography';
+
 export default function Page() {
   const [email, setEmail] = useState('');
 
@@ -48,7 +50,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white[100],
     borderRadius: 30,
     padding: 16,
-    fontSize: 16,
+    ...typography.bodyMedium(),
   },
   button: {
     backgroundColor: colors.black[100],
@@ -58,8 +60,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   buttonText: {
-    color: colors.white[100],
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.buttonMedium({ color: colors.white[100] }),
   },
 });

@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { router } from 'expo-router';
 import { colors } from '@/constants/colors';
+import { typography } from '@/constants/typography';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useCallback } from 'react';
 import * as ImagePicker from 'expo-image-picker';
@@ -92,18 +93,15 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    ...typography.heading1({ color: colors.white[100] }),
     textAlign: 'center',
     marginTop: 20,
     marginBottom: 10,
-    color: colors.black[100],
   },
   subtitle: {
-    fontSize: 18,
+    ...typography.bodyLarge({ color: colors.white[100] }),
     textAlign: 'center',
     marginBottom: 60,
-    color: colors.black[100],
   },
   permissionItem: {
     flexDirection: 'row',
@@ -126,14 +124,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   permissionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.black[100],
+    ...typography.heading4({ color: colors.black[100] }),
     marginBottom: 5,
   },
   permissionDescription: {
-    fontSize: 16,
-    color: colors.black[500],
+    ...typography.bodyMedium({ color: colors.black[500] }),
   },
   button: {
     backgroundColor: colors.black[100],
@@ -147,8 +142,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.black[500],
   },
   buttonText: {
-    color: colors.white[100],
-    fontSize: 18,
-    fontWeight: '600',
+    ...typography.buttonLarge({ color: colors.white[100] }),
   },
 }); 

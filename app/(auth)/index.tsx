@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { router } from 'expo-router';
 import { colors } from '@/constants/colors';
+import { typography } from '@/constants/typography';
+
 export default function Page() {
   return (
     <View style={styles.container}>
@@ -54,8 +56,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    ...typography.heading1(),
     textAlign: 'center',
   },
   titleDefault: {
@@ -90,17 +91,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.black[100],
   },
   buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.black[100],
+    ...typography.buttonMedium({ color: colors.black[100] }),
   },
   emailButtonText: {
     color: colors.white[100],
   },
   disclaimer: {
+    ...typography.caption({ color: colors.black[600] }),
     marginTop: 12,
     textAlign: 'center',
-    color: colors.black[600],
-    fontSize: 12,
   },
 });

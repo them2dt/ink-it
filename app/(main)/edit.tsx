@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Fla
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
+import { typography } from '@/constants/typography';
 import { useState, useCallback } from 'react';
 
 // Define a type for the tattoo style item
@@ -154,9 +155,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.black[100],
+    ...typography.heading3({ color: colors.black[100] }),
   },
   placeholder: {
     width: 40,
@@ -186,8 +185,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent[100],
   },
   filterText: {
-    color: colors.black[400],
-    fontWeight: '500',
+    ...typography.bodyMedium({ color: colors.black[400] }),
   },
   activeFilterText: {
     color: colors.white[100],
@@ -226,8 +224,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   styleName: {
-    fontWeight: '500',
-    color: colors.black[100],
+    ...typography.bodyMedium({ color: colors.black[100] }),
     textAlign: 'center',
   },
   checkmarkContainer: {
@@ -258,8 +255,6 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   buttonText: {
-    color: colors.white[100],
-    fontWeight: 'bold',
-    fontSize: 18,
+    ...typography.buttonLarge({ color: colors.white[100] }),
   },
 }); 

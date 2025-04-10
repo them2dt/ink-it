@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { colors } from '@/constants/colors';
+import { typography } from '@/constants/typography';
+
 export default function Page() {
   return (
     <View style={styles.container}>
@@ -17,8 +19,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    ...typography.heading1(),
     marginBottom: 20,
   },
   button: {
@@ -28,8 +29,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   buttonText: {
-    color: colors.white[100],
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.buttonMedium({ color: colors.white[100] }),
   },
 });

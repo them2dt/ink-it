@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
+import { typography } from '@/constants/typography';
 
 export default function Page() {
   const [oldPassword, setOldPassword] = useState('');
@@ -69,15 +70,14 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    ...typography.heading1(),
     marginBottom: 24,
   },
   input: {
     backgroundColor: colors.white[300],
     borderRadius: 8,
     padding: 16,
-    fontSize: 16,
+    ...typography.bodyMedium(),
     marginBottom: 16,
   },
   button: {
@@ -87,9 +87,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: colors.white[100],
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.buttonMedium({ color: colors.white[100] }),
   },
   bottomNav: {
     flexDirection: 'row',

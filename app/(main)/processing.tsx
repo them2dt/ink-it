@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, SafeAreaView, Animated, Easing } from 'react-native';
 import { router } from 'expo-router';
 import { colors } from '@/constants/colors';
+import { typography } from '@/constants/typography';
 import { useEffect, useRef } from 'react';
 
 export default function ProcessingPage() {
@@ -85,9 +86,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.white[100],
+    ...typography.heading3({ color: colors.white[100] }),
     marginBottom: 40,
     textAlign: 'center',
   },
@@ -105,14 +104,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   progressText: {
-    fontSize: 16,
-    color: colors.white[100],
+    ...typography.bodyMedium({ color: colors.white[100] }),
     marginBottom: 40,
   },
   message: {
-    fontSize: 16,
-    color: colors.white[200],
+    ...typography.bodyMedium({ color: colors.white[200] }),
     textAlign: 'center',
-    fontWeight: '500',
   },
 }); 

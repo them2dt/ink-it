@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { router } from 'expo-router';
 import { colors } from '@/constants/colors';
+import { typography } from '@/constants/typography';
+
 export default function Page() {
   return (
     <SafeAreaView style={styles.container}>
@@ -31,12 +33,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    ...typography.heading1({ color: colors.white[100] }),
     textAlign: 'center',
     marginTop: 20,
     marginBottom: 40,
-    color: colors.white[100],
   },
   card: {
     flex: 1,
@@ -53,8 +53,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: colors.white[100],
-    fontSize: 18,
-    fontWeight: '600',
+    ...typography.buttonLarge({ color: colors.white[100] }),
   },
 });

@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar } fro
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
+import { typography } from '@/constants/typography';
 
 export default function Page() {
   const handleTakePhoto = () => {
@@ -73,9 +74,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   appName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.white[100],
+    ...typography.heading3({ color: colors.white[100] }),
   },
   profileButton: {
     width: 44,

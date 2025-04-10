@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, Share } 
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
+import { typography } from '@/constants/typography';
 import { useState } from 'react';
 
 export default function ResultPage() {
@@ -118,9 +119,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.white[100],
+    ...typography.heading3({ color: colors.white[100] }),
   },
   placeholder: {
     width: 40,
@@ -156,9 +155,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white[100],
   },
   actionText: {
+    ...typography.bodySmall({ color: colors.white[100] }),
     marginTop: 8,
-    color: colors.white[100],
-    fontWeight: '500',
   },
   activeButtonText: {
     color: colors.white[100],

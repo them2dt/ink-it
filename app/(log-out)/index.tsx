@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-na
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
+import { typography } from '@/constants/typography';
 
 export default function Page() {
   const handleLogout = () => {
@@ -60,13 +61,11 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    ...typography.heading1(),
     marginBottom: 16,
   },
   description: {
-    fontSize: 16,
-    color: colors.black[100],
+    ...typography.bodyMedium({ color: colors.black[100] }),
     marginBottom: 24,
     lineHeight: 24,
   },
@@ -77,9 +76,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoutButtonText: {
-    color: colors.white[100],
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.buttonMedium({ color: colors.white[100] }),
   },
   bottomNav: {
     flexDirection: 'row',
