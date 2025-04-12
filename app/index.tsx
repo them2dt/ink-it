@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
-
+import { colors } from '@/constants/colors';
 export default function Page() {
   useEffect(() => {
     // Redirect to onboarding after a short delay
@@ -14,7 +14,7 @@ export default function Page() {
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="#FFD700" />
+      <ActivityIndicator size="large" color={colors.accent[100]}/>
     </View>
   );
 }

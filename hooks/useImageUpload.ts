@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { uploadImage, processImageToTattoo } from '@/services/imageProcessing';
+import { processLocalImage, processImageToTattoo } from '@/services/imageProcessing';
 import * as ImagePicker from 'expo-image-picker';
 import { Platform } from 'react-native';
 import { ImageUploadRequest } from '@/types/api.types';
@@ -8,8 +8,8 @@ export function useImageUpload() {
   const [uploading, setUploading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [tattooUrl, setTattooUrl] = useState<string | null>(null);
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [tattooUri, setTattooUri] = useState<string | null>(null);
 
   // Request permissions for camera and media library
   const requestPermissions = async () => {
@@ -46,13 +46,13 @@ export function useImageUpload() {
       });
       
       if (!result.canceled) {
-        // Upload the image
+        // Process the image locally
         const imageToUpload: ImageUploadRequest = {
           uri: result.assets[0].uri,
           type: 'image/jpeg',
           name: 'camera_image.jpg',
         };
-        return await handleImageUpload(userId, imageToUpload);
+        return await handleLocalImage(userId, imageToUpload);
       }
       
       return null;
@@ -87,13 +87,13 @@ export function useImageUpload() {
         const uri = result.assets[0].uri;
         const fileExt = uri.split('.').pop() || 'jpg';
         
-        // Upload the image
+        // Process the image locally
         const imageToUpload: ImageUploadRequest = {
           uri,
           type: `image/${fileExt}`,
           name: `upload_image.${fileExt}`,
         };
-        return await handleImageUpload(userId, imageToUpload);
+        return await handleLocalImage(userId, imageToUpload);
       }
       
       return null;
@@ -103,18 +103,18 @@ export function useImageUpload() {
     }
   };
   
-  // Handle the image upload
-  const handleImageUpload = async (userId: string, imageFile: ImageUploadRequest) => {
+  // Handle local image processing
+  const handleLocalImage = async (userId: string, imageFile: ImageUploadRequest) => {
     setUploading(true);
     setError(null);
     
     try {
-      // Upload the image
-      const uploadedImageUrl = await uploadImage(userId, imageFile);
-      setImageUrl(uploadedImageUrl);
-      return uploadedImageUrl;
+      // Process the image locally
+      const localImageUri = await processLocalImage(userId, imageFile);
+      setImageUri(localImageUri);
+      return localImageUri;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error uploading image');
+      setError(err instanceof Error ? err.message : 'Error processing image');
       return null;
     } finally {
       setUploading(false);
@@ -122,18 +122,18 @@ export function useImageUpload() {
   };
   
   // Process an image into a tattoo
-  const processImage = async (userId: string, imageUrl: string) => {
+  const processImage = async (userId: string, imageUri: string) => {
     setProcessing(true);
     setError(null);
     
     try {
       const result = await processImageToTattoo({
         userId,
-        imageUrl,
+        imageUrl: imageUri,
       });
       
       if (result.success && result.tattooUrl) {
-        setTattooUrl(result.tattooUrl);
+        setTattooUri(result.tattooUrl);
         return result.tattooUrl;
       } else {
         setError(result.error || 'Unknown error processing image');
@@ -151,14 +151,14 @@ export function useImageUpload() {
     uploading,
     processing,
     error,
-    imageUrl,
-    tattooUrl,
+    imageUri,
+    tattooUri,
     takePhoto,
     pickImage,
     processImage,
     reset: () => {
-      setImageUrl(null);
-      setTattooUrl(null);
+      setImageUri(null);
+      setTattooUri(null);
       setError(null);
     },
   };

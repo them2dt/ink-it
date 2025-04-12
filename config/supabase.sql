@@ -8,19 +8,17 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at TIMESTAMP WITH TIME ZONE
 );
 
--- Images table to store user uploaded images and processed tattoos
+-- Images table to store references to images processed by the app
+-- Images are stored locally on the device, not in Supabase storage
 CREATE TABLE IF NOT EXISTS public.images (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  storage_path TEXT NOT NULL,
-  tattoo_path TEXT,
+  local_uri TEXT NOT NULL,
+  tattoo_local_uri TEXT,
+  style TEXT,
   processed BOOLEAN DEFAULT FALSE
 );
-
--- Create storage buckets
-INSERT INTO storage.buckets (id, name) VALUES ('images', 'images') ON CONFLICT DO NOTHING;
-INSERT INTO storage.buckets (id, name) VALUES ('tattoos', 'tattoos') ON CONFLICT DO NOTHING;
 
 -- Set up row level security (RLS)
 
@@ -59,74 +57,6 @@ CREATE POLICY "Users can delete their own images"
   ON public.images
   FOR DELETE
   USING (auth.uid() = user_id);
-
--- Storage policies
-
--- Images bucket
-CREATE POLICY "Users can upload their own images"
-  ON storage.objects
-  FOR INSERT
-  WITH CHECK (
-    bucket_id = 'images' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
-
-CREATE POLICY "Users can access their own images"
-  ON storage.objects
-  FOR SELECT
-  USING (
-    bucket_id = 'images' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
-
-CREATE POLICY "Users can update their own images"
-  ON storage.objects
-  FOR UPDATE
-  USING (
-    bucket_id = 'images' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
-
-CREATE POLICY "Users can delete their own images"
-  ON storage.objects
-  FOR DELETE
-  USING (
-    bucket_id = 'images' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
-
--- Tattoos bucket
-CREATE POLICY "Users can access their own tattoos"
-  ON storage.objects
-  FOR SELECT
-  USING (
-    bucket_id = 'tattoos' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
-
-CREATE POLICY "Users can insert their own tattoos"
-  ON storage.objects
-  FOR INSERT
-  WITH CHECK (
-    bucket_id = 'tattoos' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
-
-CREATE POLICY "Users can update their own tattoos"
-  ON storage.objects
-  FOR UPDATE
-  USING (
-    bucket_id = 'tattoos' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
-
-CREATE POLICY "Users can delete their own tattoos"
-  ON storage.objects
-  FOR DELETE
-  USING (
-    bucket_id = 'tattoos' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
 
 -- Functions
 

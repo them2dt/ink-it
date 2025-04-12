@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Page() {
   const handleLogout = () => {
@@ -10,10 +10,23 @@ export default function Page() {
     router.push('/(auth)');
   };
 
+  const handleBack = () => {
+    router.push('/(main)/profile');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={handleBack}
+        >
+          <Ionicons name="chevron-back" size={28} color={colors.white[100]} />
+        </TouchableOpacity>
         <Text style={styles.title}>Log out</Text>
+      </View>
+
+      <View style={styles.content}>
         <Text style={styles.description}>
           Are you sure you want to log out?
         </Text>
@@ -24,29 +37,6 @@ export default function Page() {
           <Text style={styles.logoutButtonText}>Log out</Text>
         </TouchableOpacity>
       </View>
-
-      <View style={styles.bottomNav}>
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => router.push('/(main)')}
-        >
-          <Ionicons name="home" size={24} color="#666" />
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.navButton}
-          onPress={() => router.push('/(main)')}
-        >
-          <Ionicons name="camera" size={24} color="#666" />
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.navButton, styles.activeNavButton]}
-          onPress={() => router.push('/(main)/profile')}
-        >
-          <Ionicons name="person" size={24} color="#000" />
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
@@ -54,46 +44,36 @@ export default function Page() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white[100],
+    backgroundColor: '#3A11BE',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    paddingTop: 0,
+  },
+  backButton: {
+    marginRight: 10,
+  },
+  title: {
+    ...typography.heading1({ color: colors.white[100] }),
   },
   content: {
     flex: 1,
     padding: 20,
   },
-  title: {
-    ...typography.heading1(),
-    marginBottom: 16,
-  },
   description: {
-    ...typography.bodyMedium({ color: colors.black[100] }),
+    ...typography.bodyMedium({ color: colors.white[100] }),
     marginBottom: 24,
     lineHeight: 24,
   },
   logoutButton: {
-    backgroundColor: colors.red[100],
+    backgroundColor: colors.white[100],
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
   },
   logoutButtonText: {
-    ...typography.buttonMedium({ color: colors.white[100] }),
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 20,
-    backgroundColor: colors.white[100],
-    borderTopWidth: 1,
-    borderTopColor: colors.white[300],
-  },
-  navButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  activeNavButton: {
-    backgroundColor: colors.accent[100],
+    ...typography.buttonMedium({ color: colors.accent[100] }),
   },
 });

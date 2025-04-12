@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image } from 'react-native';
 import { router } from 'expo-router';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
@@ -7,10 +7,13 @@ export default function Page() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Tattoos for everyone</Text>
+        <Text style={styles.title}>And it's done!</Text>
         
-        {/* White card placeholder */}
-        <View style={styles.card} />
+        <Image 
+          source={require('@/assets/images/onboarding_3.png')}
+          style={styles.image}
+          resizeMode="contain"
+        />
       </View>
       
       <TouchableOpacity 
@@ -26,7 +29,7 @@ export default function Page() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.accent[100], // Bright yellow background
+    backgroundColor: '#3A11BE', // Bright yellow background
   },
   content: {
     flex: 1,
@@ -38,9 +41,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 40,
   },
-  card: {
+  image: {
     flex: 1,
-    backgroundColor: colors.white[100],
+    width: '100%',
     borderRadius: 20,
     marginBottom: 20,
   },

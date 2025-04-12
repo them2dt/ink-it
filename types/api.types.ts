@@ -23,6 +23,7 @@ export interface ImageUploadRequest {
 export interface ImageProcessRequest {
   imageUrl: string;
   userId: string;
+  style?: string;
 }
 
 export interface ImageProcessResponse {

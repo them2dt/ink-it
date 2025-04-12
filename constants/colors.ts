@@ -28,16 +28,16 @@ export const white = {
 
 // Purple variations(accent) (10 levels) - Increasing brightness
 export const purple = {
-  100: '#8769FF',   // Base color
-  200: '#9983FF',   // Lighter
-  300: '#AB9DFF',   // Lighter
-  400: '#BDB7FF',   // Lighter
-  500: '#CED1FF',   // Lighter
-  600: '#E0EBFF',   // Lighter
-  700: '#F2F5FF',   // Lightest
-  800: '#E6DFFF',   // Slightly different hue
-  900: '#D4C2FF',   // Slightly different hue
-  1000: '#C2A6FF',  // Slightly different hue
+  100: '#3A11BE',   // Base color
+  200: '#4C23D0',   // Lighter
+  300: '#5E35E2',   // Lighter
+  400: '#7047F4',   // Lighter
+  500: '#8259FF',   // Lighter
+  600: '#9470FF',   // Lighter
+  700: '#A688FF',   // Lighter
+  800: '#B89FFF',   // Lighter
+  900: '#CAB7FF',   // Lighter
+  1000: '#DCCEFF',  // Lightest
 };
 
 export const red = {

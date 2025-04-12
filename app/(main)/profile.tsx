@@ -20,33 +20,23 @@ export default function Page() {
           style={styles.backButton} 
           onPress={handleBack}
         >
-          <Ionicons name="chevron-back" size={28} color={colors.black[100]} />
+          <Ionicons name="chevron-back" size={28} color={colors.white[100]} />
         </TouchableOpacity>
         <Text style={styles.title}>Profile</Text>
       </View>
-
       <View style={styles.content}>
         <TouchableOpacity 
           style={styles.menuItem}
-          onPress={() => console.log('Manage subscription')}
+          onPress={() => router.push('/(main)/subscription')}
         >
           <Text style={styles.menuText}>Manage Subscription</Text>
         </TouchableOpacity>
-
         <TouchableOpacity 
           style={styles.menuItem}
           onPress={() => router.push('/(reset)')}
         >
           <Text style={styles.menuText}>Reset profile</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => router.push('/(change-password)')}
-        >
-          <Text style={styles.menuText}>Change password</Text>
-        </TouchableOpacity>
-
         <TouchableOpacity 
           style={styles.menuItem}
           onPress={handleLogout}
@@ -61,7 +51,7 @@ export default function Page() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.white[100],
+    backgroundColor: '#3A11BE',
   },
   header: {
     flexDirection: 'row',
@@ -73,19 +63,19 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   title: {
-    ...typography.heading1({ color: colors.black[100] }),
+    ...typography.heading1({ color: colors.white[100] }),
   },
   content: {
     flex: 1,
     paddingHorizontal: 20,
   },
   menuItem: {
-    backgroundColor: colors.white[200],
+    backgroundColor: colors.accent[200],
     padding: 16,
     borderRadius: 8,
     marginBottom: 10,
   },
   menuText: {
-    ...typography.bodyMedium({ color: colors.black[100] }),
+    ...typography.bodyMedium({ color: colors.white[100] }),
   },
 });

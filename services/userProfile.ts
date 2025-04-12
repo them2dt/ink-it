@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { UserProfile } from '@/types/api.types';
+import * as FileSystem from 'expo-file-system';
 
 /**
  * Get the profile of the current user
@@ -110,34 +111,27 @@ export async function resetUserProfile(): Promise<boolean> {
     return false;
   }
 
-  // Delete user's images from storage
+  // Get user's images from database to delete local files
   const { data: images } = await supabase
     .from('images')
-    .select('storage_path, tattoo_path')
+    .select('local_uri, tattoo_local_uri')
     .eq('user_id', user.id);
 
   if (images && images.length > 0) {
-    // Delete original images
-    const imagePaths = images.map((img: { storage_path: string }) => img.storage_path).filter(Boolean);
-    if (imagePaths.length > 0) {
-      const { error: storageError } = await supabase.storage
-        .from('images')
-        .remove(imagePaths);
-      
-      if (storageError) {
-        console.error('Error deleting images from storage:', storageError);
-      }
-    }
-
-    // Delete tattoo images
-    const tattooPaths = images.map((img: { tattoo_path: string | null }) => img.tattoo_path).filter(Boolean);
-    if (tattooPaths.length > 0) {
-      const { error: tattooError } = await supabase.storage
-        .from('tattoos')
-        .remove(tattooPaths);
-      
-      if (tattooError) {
-        console.error('Error deleting tattoos from storage:', tattooError);
+    // Delete local image files
+    for (const img of images) {
+      try {
+        if (img.local_uri) {
+          const originalUri = FileSystem.documentDirectory + img.local_uri + '.jpg';
+          await FileSystem.deleteAsync(originalUri, { idempotent: true });
+        }
+        
+        if (img.tattoo_local_uri) {
+          const tattooUri = FileSystem.documentDirectory + img.tattoo_local_uri + '.png';
+          await FileSystem.deleteAsync(tattooUri, { idempotent: true });
+        }
+      } catch (e) {
+        console.error('Error deleting local files:', e);
       }
     }
 

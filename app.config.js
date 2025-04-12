@@ -1,30 +1,33 @@
-module.exports = {
+import 'dotenv/config';
+
+export default {
   expo: {
     name: "ink-it",
     slug: "ink-it",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/icon.png",
+    icon: "./assets/images/icon.png",
     userInterfaceStyle: "light",
     splash: {
-      image: "./assets/splash.png",
+      image: "./assets/images/splash.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff"
     },
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.yourcompany.inkit"
+      bundleIdentifier: "com.yourcompany.inkit",
+      usesAppleSignIn: true
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: "./assets/adaptive-icon.png",
+        foregroundImage: "./assets/images/icon.png",
         backgroundColor: "#ffffff"
       },
       package: "com.yourcompany.inkit"
     },
     web: {
-      favicon: "./assets/favicon.png"
+      favicon: "./assets/images/favicon.png"
     },
     plugins: [
       [
@@ -33,7 +36,8 @@ module.exports = {
           "photosPermission": "The app accesses your photos to convert them into tattoos.",
           "cameraPermission": "The app accesses your camera to capture images for tattoo designs."
         }
-      ]
+      ],
+      "expo-apple-authentication"
     ],
     extra: {
       // Environment variables - use process.env in development 

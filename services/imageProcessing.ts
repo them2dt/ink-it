@@ -5,41 +5,40 @@ import * as FileSystem from 'expo-file-system';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Upload an image to Supabase storage
+ * Process an image locally without uploading to Supabase storage
  */
-export async function uploadImage(
+export async function processLocalImage(
   userId: string,
   imageFile: ImageUploadRequest
 ): Promise<string> {
   try {
-    // Create a unique filename
-    const fileExt = imageFile.name.split('.').pop();
-    const fileName = `${uuidv4()}.${fileExt}`;
-    const filePath = `${userId}/${fileName}`;
-
-    // Read file as base64
-    const base64 = await FileSystem.readAsStringAsync(imageFile.uri, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-
-    // Upload to Supabase
-    const { error } = await supabase.storage
-      .from('images')
-      .upload(filePath, Buffer.from(base64, 'base64'), {
-        contentType: imageFile.type,
-      });
-
-    if (error) {
-      throw error;
-    }
-
-    // Get public URL
-    const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+    // Create a unique file identifier
+    const fileId = uuidv4();
     
-    // Save reference in the database
+    // Store the image locally in the app's file system
+    const fileUri = FileSystem.documentDirectory + fileId + '.jpg';
+    
+    // If the image is already a file URI on the device, copy it
+    if (imageFile.uri.startsWith('file://')) {
+      await FileSystem.copyAsync({
+        from: imageFile.uri,
+        to: fileUri
+      });
+    } else {
+      // For base64 or remote images, download/save them
+      await FileSystem.writeAsStringAsync(
+        fileUri,
+        imageFile.uri.startsWith('data:') 
+          ? imageFile.uri.split(',')[1] 
+          : await FileSystem.readAsStringAsync(imageFile.uri, { encoding: FileSystem.EncodingType.Base64 }),
+        { encoding: FileSystem.EncodingType.Base64 }
+      );
+    }
+    
+    // Save reference in the database (without storage_path)
     const { error: dbError } = await supabase.from('images').insert({
       user_id: userId,
-      storage_path: filePath,
+      local_uri: fileId,
       processed: false,
     });
 
@@ -47,9 +46,9 @@ export async function uploadImage(
       console.error('Error saving image reference:', dbError);
     }
 
-    return data.publicUrl;
+    return fileUri;
   } catch (error) {
-    console.error('Error uploading image:', error);
+    console.error('Error processing local image:', error);
     throw error;
   }
 }
@@ -61,19 +60,33 @@ export async function processImageToTattoo(
   request: ImageProcessRequest
 ): Promise<ImageProcessResponse> {
   try {
+    // For local files, convert to base64 for OpenAI API
+    let imageContent;
+    if (request.imageUrl.startsWith('file://')) {
+      const base64 = await FileSystem.readAsStringAsync(request.imageUrl, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      imageContent = `data:image/jpeg;base64,${base64}`;
+    } else {
+      imageContent = request.imageUrl;
+    }
+
+    // Get the selected style or use a default
+    const style = request.style || 'minimalist';
+
     // Call OpenAI's Vision API to process the image
     const response = await openai.chat.completions.create({
       model: "gpt-4-vision-preview",
       messages: [
         {
           role: "system",
-          content: "You are a tattoo artist. Convert the user's image into a tattoo design that captures the essence of the original image but is optimized for a tattoo. Focus on clear lines, appropriate contrast, and a design that will age well as a tattoo."
+          content: `You are a tattoo artist. Convert the user's image into a tattoo design in the ${style} style. Capture the essence of the original image but optimize it for a tattoo. Focus on clear lines, appropriate contrast, and a design that will age well as a tattoo.`
         },
         {
           role: "user",
           content: [
             { type: "text", text: "Convert this image into a tattoo design." },
-            { type: "image_url", image_url: { url: request.imageUrl } }
+            { type: "image_url", image_url: { url: imageContent } }
           ]
         }
       ],
@@ -85,7 +98,7 @@ export async function processImageToTattoo(
     
     const imageResponse = await openai.images.generate({
       model: "dall-e-3",
-      prompt: `Create a tattoo design based on this description: ${description}. Make it with clear lines, high contrast, and suitable for a tattoo. Use a minimalist style with black ink only.`,
+      prompt: `Create a tattoo design in the ${style} style based on this description: ${description}. Make it with clear lines, high contrast, and suitable for a tattoo.`,
       n: 1,
       size: "1024x1024",
       quality: "hd",
@@ -97,40 +110,30 @@ export async function processImageToTattoo(
       throw new Error("Failed to generate tattoo image");
     }
 
-    // Download the generated image and upload to Supabase
-    const imageData = await fetch(tattooUrl).then(res => res.arrayBuffer());
-    const buffer = Buffer.from(imageData);
+    // Download the generated image to local file system
+    const tattooId = uuidv4();
+    const tattooUri = FileSystem.documentDirectory + tattooId + '.png';
     
-    // Create a tattoo file path
-    const filePath = `${request.userId}/tattoos/${uuidv4()}.png`;
+    // Download the image from the OpenAI URL
+    await FileSystem.downloadAsync(tattooUrl, tattooUri);
     
-    // Upload the tattoo to Supabase
-    const { error } = await supabase.storage
-      .from('tattoos')
-      .upload(filePath, buffer, {
-        contentType: 'image/png',
-      });
-
-    if (error) {
-      throw error;
-    }
-
-    // Get the public URL
-    const { data } = supabase.storage.from('tattoos').getPublicUrl(filePath);
+    // Extract the file ID from the original image URI
+    const fileId = request.imageUrl.split('/').pop()?.split('.')[0];
     
-    // Update the image record
+    // Update the image record with the local URI for the tattoo
     await supabase
       .from('images')
       .update({
-        tattoo_path: filePath,
+        tattoo_local_uri: tattooId,
+        style: style,
         processed: true,
       })
       .eq('user_id', request.userId)
-      .eq('storage_path', request.imageUrl.split('/').pop() || '');
+      .eq('local_uri', fileId);
 
     return {
       success: true,
-      tattooUrl: data.publicUrl,
+      tattooUrl: tattooUri,
     };
   } catch (error) {
     console.error('Error processing image:', error);
