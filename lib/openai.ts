@@ -50,34 +50,49 @@ export async function processImageToTattoo(
       {
         role: "system",
         content: `You are a tattoo artist specializing in ${style} style. 
-Analyze the provided image and describe its key elements very concisely. 
-Focus only on the main visual elements that should be incorporated into a tattoo.
-Keep your response under 300 words and very specific to visual content only.`
+Your task is to identify and describe the KEY ELEMENTS in the provided image with extreme precision.
+Focus on shapes, objects, subjects, composition, and critical visual details.
+Be extremely specific about what makes this image unique and recognizable.
+Your description will be used to create a tattoo that MUST reflect these key elements faithfully.
+Keep your response under 200 words and focus exclusively on visual elements.`
       },
       {
         role: "user",
         content: [
-          { type: "text", text: "What are the key visual elements in this image that would be important for a tattoo design?" },
+          { type: "text", text: "What are the essential visual elements in this image that MUST be preserved in a tattoo design? Be extremely specific about the subjects, composition, and defining features." },
           { type: "image_url", image_url: { url: imageContent } }
         ]
       }
     ],
-    max_tokens: 150,
+    max_tokens: 300,
+    temperature: 0.7,
   });
 
   // Extract the description
   const imageDescription = imageAnalysis.choices[0]?.message?.content || "abstract design";
   
-  // Generate the prompt based on style and image description
-  const prompt = `Based on this description: "${imageDescription}", ${generateTattooPrompt(style)}`;
+  // Generate a detailed prompt that emphasizes preserving the original image elements
+  const baseStylePrompt = generateTattooPrompt(style);
+  const enhancedPrompt = `
+IMPORTANT: Create a tattoo design in the ${style} style that FAITHFULLY REPRODUCES these specific elements from the original image:
+
+${imageDescription}
+
+The design MUST be immediately recognizable as derived from the original image while applying the ${style} style aesthetics.
+
+${baseStylePrompt}
+
+CRITICAL: The subject matter and composition MUST closely match the original image - do NOT create a generic design.
+`;
   
   // Generate the image using DALL-E 3
   const response = await openai.images.generate({
     model: "dall-e-3",
-    prompt: prompt,
+    prompt: enhancedPrompt,
     n: 1,
     size: "1024x1024",
     quality: "hd",
+    style: "vivid", // Use "vivid" for stronger adherence to the prompt
     response_format: "url",
     user: "ink-it-app",
   });
