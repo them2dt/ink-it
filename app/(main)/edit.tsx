@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, FlatList, Image, StatusBar } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
@@ -12,28 +12,42 @@ interface TattooStyle {
   image: any; // Using 'any' for now, ideally we'd use a more specific type
 }
 
-// Sample tattoo style data
+// Updated tattoo style data to match the OpenAI styles
 const tattooStyles: TattooStyle[] = [
-  { id: '1', name: 'Traditional', image: require('@/assets/images/placeholder.png') },
-  { id: '2', name: 'Neo-Traditional', image: require('@/assets/images/placeholder.png') },
-  { id: '3', name: 'Watercolor', image: require('@/assets/images/placeholder.png') },
-  { id: '4', name: 'Realistic', image: require('@/assets/images/placeholder.png') },
-  { id: '5', name: 'Geometric', image: require('@/assets/images/placeholder.png') },
-  { id: '6', name: 'Japanese', image: require('@/assets/images/placeholder.png') },
-  { id: '7', name: 'Tribal', image: require('@/assets/images/placeholder.png') },
-  { id: '8', name: 'Blackwork', image: require('@/assets/images/placeholder.png') },
-  { id: '9', name: 'New School', image: require('@/assets/images/placeholder.png') },
-  { id: '10', name: 'Minimalist', image: require('@/assets/images/placeholder.png') },
-  { id: '11', name: 'Dotwork', image: require('@/assets/images/placeholder.png') },
-  { id: '12', name: 'Sketch', image: require('@/assets/images/placeholder.png') },
+  { 
+    id: 'Traditional', 
+    name: 'Traditional', 
+    image: require('@/assets/images/traditional.png') 
+  },
+  { 
+    id: 'Realism', 
+    name: 'Realism', 
+    image: require('@/assets/images/realism.png') 
+  },
+  { 
+    id: 'Neo-Traditional', 
+    name: 'Neo-Traditional', 
+    image: require('@/assets/images/neotraditional.png') 
+  },
+  { 
+    id: 'Japanese', 
+    name: 'Japanese', 
+    image: require('@/assets/images/japanese.png') 
+  },
+  { 
+    id: 'Tribal', 
+    name: 'Tribal', 
+    image: require('@/assets/images/tribal.png') 
+  },
 ];
 
-// Sample filter categories
+// Sample filter categories (keeping only relevant ones)
 const filterCategories = [
-  'All Styles', 'Popular', 'Color', 'Black & White', 'Abstract', 'Detailed', 'Simple'
+  'All Styles', 'Popular', 'Black & White', 'Color'
 ];
 
 export default function EditPage() {
+  const { photoUri } = useLocalSearchParams<{ photoUri: string }>();
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState('All Styles');
 
@@ -42,10 +56,13 @@ export default function EditPage() {
   };
 
   const handleContinue = () => {
-    if (selectedStyle) {
-      console.log(`Applying style: ${selectedStyle}`);
-      // Navigate to the processing page
-      router.push('/processing' as any);
+    if (selectedStyle && photoUri) {
+      console.log(`Applying style: ${selectedStyle} to photo: ${photoUri}`);
+      // Navigate to the processing page with both photo URI and selected style
+      router.push({
+        pathname: '/processing',
+        params: { photoUri, styleId: selectedStyle }
+      });
     }
   };
 
@@ -71,12 +88,12 @@ export default function EditPage() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons name="chevron-back" size={28} color={colors.black[100]} />
+          <Ionicons name="chevron-back" size={28} color={colors.accent[100]} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Choose Style</Text>
         <View style={styles.placeholder} />
@@ -147,6 +164,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: colors.white[100],
+    borderBottomWidth: 1,
+    borderBottomColor: colors.white[300],
   },
   backButton: {
     width: 40,
@@ -203,29 +222,28 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white[200],
     borderWidth: 2, 
     borderColor: colors.white[300],
-    padding:4,
+    padding: 4,
     gap: 4,
-    
   },
   selectedStyleItem: {
     borderWidth: 2,
     borderColor: colors.accent[100],
-    boxSizing: 'content-box',
+    backgroundColor: colors.white[300],
   },
   styleImage: {
     width: '100%',
-    height: 140,
+    height: 140, // Increased height since we removed descriptions
     borderRadius: 8,
   },
   styleNameContainer: {
     padding: 8,
     backgroundColor: colors.white[100],
-    height: 40,
     borderRadius: 8,
   },
   styleName: {
     ...typography.bodyMedium({ color: colors.black[100] }),
     textAlign: 'center',
+    fontWeight: '600',
   },
   checkmarkContainer: {
     position: 'absolute',
@@ -233,28 +251,26 @@ const styles = StyleSheet.create({
     right: 8,
     backgroundColor: colors.white[100],
     borderRadius: 12,
-    padding: 2,
   },
   floatingButton: {
     position: 'absolute',
     bottom: 20,
-    left: 20,
     right: 20,
     backgroundColor: colors.accent[100],
-    paddingVertical: 16,
-    borderRadius: 30,
-    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 24,
     shadowColor: colors.black[100],
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowRadius: 3.84,
     elevation: 5,
   },
   disabledButton: {
-    backgroundColor: colors.accent[400],
-    opacity: 0.7,
+    backgroundColor: colors.accent[200],
+    opacity: 0.5,
   },
   buttonText: {
-    ...typography.buttonLarge({ color: colors.white[100] }),
+    ...typography.buttonMedium({ color: colors.white[100] }),
   },
 }); 

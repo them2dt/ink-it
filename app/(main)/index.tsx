@@ -1,51 +1,97 @@
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
+import { useState, useRef } from 'react';
 
 export default function Page() {
-  const handleTakePhoto = () => {
-    // For now, just navigate to the edit page
-    router.push('/edit' as any);
+  const [facing, setFacing] = useState<CameraType>('back');
+  const [permission, requestPermission] = useCameraPermissions();
+  const cameraRef = useRef<CameraView>(null);
+
+  if (!permission) {
+    return <View style={styles.container}><Text>Loading...</Text></View>;
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>We need your permission to show the camera</Text>
+        <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
+          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const handleTakePhoto = async () => {
+    if (cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync();
+        if (photo?.uri) {
+          router.push({
+            pathname: '/edit',
+            params: { photoUri: photo.uri }
+          });
+        }
+      } catch (error) {
+        console.error('Error taking photo:', error);
+      }
+    }
   };
 
   const handleGallery = () => {
-    // For now, let's just log this until we create the page
     console.log('Open gallery');
-    // Will implement later: router.push('/select-image'); 
   };
 
   const handleAIGeneration = () => {
-    // For now, let's just log this until we create the page
     console.log('Open AI generation');
-    // Will implement later: router.push('/generate');
   };
 
   const handleProfile = () => {
     router.push('/(main)/profile');
   };
 
+  const toggleCameraFacing = () => {
+    setFacing(current => (current === 'back' ? 'front' : 'back'));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       
       {/* Header with app name and profile button */}
       <View style={styles.header}>
         <Text style={styles.appName}>Ink it!</Text>
         <TouchableOpacity onPress={handleProfile} style={styles.profileButton}>
-          <Ionicons name="person-circle" size={32} color={colors.white[100]} />
+          <Ionicons name="person-circle" size={32} color={colors.accent[100]} />
         </TouchableOpacity>
       </View>
 
-      {/* Camera preview area (placeholder for now) */}
-      <View style={styles.cameraPreview} />
+      {/* Camera preview */}
+      <CameraView 
+        ref={cameraRef}
+        style={styles.camera} 
+        facing={facing}
+      >
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.flipButton} onPress={toggleCameraFacing}>
+            <View style={styles.flipButtonInner}>
+              <Ionicons name="camera-reverse" size={24} color={colors.accent[100]} />
+            </View>
+          </TouchableOpacity>
+        </View>
+      </CameraView>
 
       {/* Bottom controls */}
       <View style={styles.bottomControls}>
         {/* Gallery button */}
         <TouchableOpacity style={styles.sideButton} onPress={handleGallery}>
-          <Ionicons name="images" size={30} color={colors.white[100]} />
+          <View style={styles.iconContainer}>
+            <Ionicons name="images" size={24} color={colors.accent[100]} />
+          </View>
         </TouchableOpacity>
         
         {/* Capture button */}
@@ -55,7 +101,9 @@ export default function Page() {
         
         {/* AI button */}
         <TouchableOpacity style={styles.sideButton} onPress={handleAIGeneration}>
-          <Ionicons name="sparkles" size={30} color={colors.white[100]} />
+          <View style={styles.iconContainer}>
+            <Ionicons name="sparkles" size={24} color={colors.accent[100]} />
+          </View>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -65,16 +113,17 @@ export default function Page() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.accent[100],
+    backgroundColor: colors.white[100],
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
+    backgroundColor: colors.white[100],
   },
   appName: {
-    ...typography.heading3({ color: colors.white[100] }),
+    ...typography.heading3({ color: colors.accent[100] }),
   },
   profileButton: {
     width: 44,
@@ -83,9 +132,51 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cameraPreview: {
+  camera: {
     flex: 1,
-    backgroundColor: colors.accent[200],
+    borderRadius: 20,
+    margin: 10,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+  },
+  flipButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  flipButtonInner: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  message: {
+    textAlign: 'center',
+    paddingBottom: 10,
+    color: colors.black[100],
+  },
+  permissionButton: {
+    backgroundColor: colors.accent[100],
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  permissionButtonText: {
+    color: colors.white[100],
+    fontSize: 16,
+    fontWeight: '500',
   },
   bottomControls: {
     flexDirection: 'row',
@@ -93,6 +184,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 30,
     paddingHorizontal: 20,
+    backgroundColor: colors.white[100],
   },
   sideButton: {
     width: 50,
@@ -101,22 +193,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.white[200],
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   captureButton: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: colors.accent[100],
+    backgroundColor: colors.white[100],
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: colors.accent[1000],
+    borderColor: colors.accent[100],
   },
   captureButtonInner: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: colors.white[100],
+    backgroundColor: colors.accent[100],
     borderWidth: 4,
-    borderColor: colors.accent[1000],
+    borderColor: colors.white[100],
   },
 });

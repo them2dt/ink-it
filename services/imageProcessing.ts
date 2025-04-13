@@ -1,8 +1,15 @@
 import { supabase } from '@/lib/supabase';
-import openai from '@/lib/openai';
+import openai, { processImageToTattoo } from '@/lib/openai';
 import { ImageProcessRequest, ImageProcessResponse, ImageUploadRequest } from '@/types/api.types';
 import * as FileSystem from 'expo-file-system';
-import { v4 as uuidv4 } from 'uuid';
+
+/**
+ * Generate a unique ID using timestamp and random values
+ * Lightweight alternative to UUID, suitable for Expo apps
+ */
+function generateUniqueId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2);
+}
 
 /**
  * Process an image locally without uploading to Supabase storage
@@ -13,7 +20,7 @@ export async function processLocalImage(
 ): Promise<string> {
   try {
     // Create a unique file identifier
-    const fileId = uuidv4();
+    const fileId = generateUniqueId();
     
     // Store the image locally in the app's file system
     const fileUri = FileSystem.documentDirectory + fileId + '.jpg';
@@ -56,11 +63,11 @@ export async function processLocalImage(
 /**
  * Process an image using OpenAI to create a tattoo design
  */
-export async function processImageToTattoo(
+export async function generateTattooFromImage(
   request: ImageProcessRequest
 ): Promise<ImageProcessResponse> {
   try {
-    // For local files, convert to base64 for OpenAI API
+    // Step 1: Convert the image into a usable format
     let imageContent;
     if (request.imageUrl.startsWith('file://')) {
       const base64 = await FileSystem.readAsStringAsync(request.imageUrl, {
@@ -73,48 +80,18 @@ export async function processImageToTattoo(
 
     // Get the selected style or use a default
     const style = request.style || 'minimalist';
-
-    // Call OpenAI's Vision API to process the image
-    const response = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview",
-      messages: [
-        {
-          role: "system",
-          content: `You are a tattoo artist. Convert the user's image into a tattoo design in the ${style} style. Capture the essence of the original image but optimize it for a tattoo. Focus on clear lines, appropriate contrast, and a design that will age well as a tattoo.`
-        },
-        {
-          role: "user",
-          content: [
-            { type: "text", text: "Convert this image into a tattoo design." },
-            { type: "image_url", image_url: { url: imageContent } }
-          ]
-        }
-      ],
-      max_tokens: 300,
-    });
-
-    // Use DALL-E to generate the tattoo image based on the GPT-4 description
-    const description = response.choices[0]?.message?.content || "";
     
-    const imageResponse = await openai.images.generate({
-      model: "dall-e-3",
-      prompt: `Create a tattoo design in the ${style} style based on this description: ${description}. Make it with clear lines, high contrast, and suitable for a tattoo.`,
-      n: 1,
-      size: "1024x1024",
-      quality: "hd",
-    });
-
-    const tattooUrl = imageResponse.data[0]?.url;
+    // Step 2 & 3: Generate the tattoo image using the function from openai.ts
+    const tattooUrl = await processImageToTattoo(imageContent, style);
     
     if (!tattooUrl) {
       throw new Error("Failed to generate tattoo image");
     }
-
-    // Download the generated image to local file system
-    const tattooId = uuidv4();
+    
+    // Step 4: Download and save the generated image locally
+    const tattooId = generateUniqueId();
     const tattooUri = FileSystem.documentDirectory + tattooId + '.png';
     
-    // Download the image from the OpenAI URL
     await FileSystem.downloadAsync(tattooUrl, tattooUri);
     
     // Extract the file ID from the original image URI

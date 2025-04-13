@@ -30,6 +30,8 @@ export interface ImageProcessResponse {
   success: boolean;
   tattooUrl?: string;
   error?: string;
+  analysisPath?: string;
+  promptPath?: string;
 }
 
 // Profile related types
