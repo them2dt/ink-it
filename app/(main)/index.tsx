@@ -1,15 +1,25 @@
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function Page() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
+  const [galleryPermission, setGalleryPermission] = useState<boolean>(false);
   const cameraRef = useRef<CameraView>(null);
+
+  // Request media library permissions on component mount
+  useEffect(() => {
+    (async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      setGalleryPermission(status === 'granted');
+    })();
+  }, []);
 
   if (!permission) {
     return <View style={styles.container}><Text>Loading...</Text></View>;
@@ -42,8 +52,44 @@ export default function Page() {
     }
   };
 
-  const handleGallery = () => {
-    console.log('Open gallery');
+  const handleGallery = async () => {
+    if (!galleryPermission) {
+      Alert.alert(
+        'Permission Required',
+        'Please grant permission to access your photos',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Settings', 
+            onPress: async () => {
+              const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+              setGalleryPermission(status === 'granted');
+            } 
+          }
+        ]
+      );
+      return;
+    }
+
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedImage = result.assets[0];
+        router.push({
+          pathname: '/edit',
+          params: { photoUri: selectedImage.uri }
+        });
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image from gallery');
+    }
   };
 
   const handleAIGeneration = () => {
