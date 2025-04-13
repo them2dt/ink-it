@@ -95,12 +95,6 @@ export default function ResultPage() {
       
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={handleBack}
-        >
-          <Ionicons name="chevron-back" size={24} color={colors.accent[100]} />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>Your Tattoo</Text>
         <View style={styles.placeholder} />
       </View>
